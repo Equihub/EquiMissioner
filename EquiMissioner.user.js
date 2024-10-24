@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.4
+// @version      1.5
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
-// @license      GPL3.0
+// @license      AGPL3.0
 // @match        https://*.herozerogame.com
 // @downloadURL  https://github.com/Equihub/EquiMissioner/blob/main/EquiMissioner.user.js?raw=true
 // @updateURL    https://github.com/Equihub/EquiMissioner/blob/main/EquiMissioner.user.js?raw=true
@@ -69,6 +69,8 @@
             this.autoStartQuest = GM_getValue("auto-start-quest", false);
             this.autoClaimQuest = GM_getValue("quest-auto-claim", false);
             this.autoNextQuest = GM_getValue("quest-auto-next", false);
+            this.autoRedeemVoucherLater = GM_getValue("auto-redeem-voucher-later", false);
+            this.autoDismissLevelUp = GM_getValue("auto-dismiss-level-up", false);
             this.questSenseBoosterActive = GM_getValue("sense-booster", false);
             this.trainSenseBoosterActive = GM_getValue("train-sense-booster", false);
 
@@ -105,8 +107,9 @@
             mainDiv.className = "fixed-top";
             mainDiv.innerHTML = `
                 <div style="z-index: 1050">
-                    <button class="btn btn-primary position-absolute" style="z-index: 1050;" type="button" data-bs-toggle="collapse" data-bs-target="#missioner-cont" aria-expanded="false" aria-controls="missioner-cont">
+                    <button class="btn btn-secondary position-absolute d-flex align-items-center" style="z-index: 1050;" type="button" data-bs-toggle="collapse" data-bs-target="#missioner-cont" aria-expanded="false" aria-controls="missioner-cont">
                         <img src="https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true" alt="M" style="width: 32px;">
+                        <p class="mx-2 my-0">EquiMissioner</p>
                     </button>
                     <div class="position-absolute top-0" style="height: 100vh;background: #262626cc;overflow-y: auto">
                         <div class="collapse collapse-horizontal" id="missioner-cont">
@@ -169,6 +172,24 @@
                                         <button id="buy-energy" class="btn btn-primary w-100" style="padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x)!important;" type="button">Buy Energy</button>
                                     </div>
                                 </div>
+                                <div class="card text-bg-dark mb-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Vouchers</h5>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="auto-redeem-voucher-later">
+                                            <label class="form-check-label" for="auto-redeem-voucher-later">Auto Redeem-Later</label>
+                                        </div>
+                                        </div>
+                                </div>
+                                <div class="card text-bg-dark mb-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Level Up</h5>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="auto-dismiss-level-up">
+                                            <label class="form-check-label" for="auto-dismiss-level-up">Auto Dismiss Popup</label>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="d-flex justify-content-center mb-2">
                                     <a href="https://discord.gg/ZEXdQreFxF" target="_blank" class="p-2 bg-dark rounded">
                                         <img src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" alt="Discord" style="width: 32px">
@@ -197,6 +218,8 @@
             const questAutoStartCheckbox = document.getElementById('quest-auto-start');
             const questAutoClaimCheckbox = document.getElementById('quest-auto-claim');
             const questAutoNextCheckbox = document.getElementById('quest-auto-next');
+            const voucherAutoRedeemLaterCheckbox = document.getElementById('auto-redeem-voucher-later');
+            const autoDismissLevelUpCheckbox = document.getElementById('auto-dismiss-level-up');
             const fpsInput = document.getElementById('fps-input');
             const missionGoButton = document.getElementById('mission-go');
             const buyEnergyButton = document.getElementById('buy-energy');
@@ -209,6 +232,8 @@
             questAutoStartCheckbox.checked = this.autoStartQuest;
             questAutoClaimCheckbox.checked = this.autoClaimQuest;
             questAutoNextCheckbox.checked = this.autoNextQuest;
+            voucherAutoRedeemLaterCheckbox.checked = this.autoRedeemVoucherLater;
+            autoDismissLevelUpCheckbox.checked = this.autoDismissLevelUp;
 
             // Set up event listeners
             fpsInput.addEventListener('input', this.updateFPS.bind(this));
@@ -221,6 +246,8 @@
             questAutoStartCheckbox.addEventListener('change', this.updateAutoStartQuest.bind(this));
             questAutoClaimCheckbox.addEventListener('change', this.updateAutoClaimQuest.bind(this));
             questAutoNextCheckbox.addEventListener('change', this.updateAutoNextQuest.bind(this));
+            voucherAutoRedeemLaterCheckbox.addEventListener('change', this.updateAutoRedeemVoucherLater.bind(this));
+            autoDismissLevelUpCheckbox.addEventListener('change', this.updateAutoDismissLevelUp.bind(this));
         }
 
         /**
@@ -292,11 +319,14 @@
 
             if (availableQuests.length === 0) return null;
 
+            // Filter Quests exceeding the max energy per quest
+            availableQuests = availableQuests.filter(q => q.energy_cost <= this.maxEnergyPerQuest);
+
             availableQuests = this.sortQuestsByFocus(availableQuests);
 
-            // Filter quests exceeding the max energy per quest
-            if (availableQuests.length > 0 && availableQuests[0].energy_cost > this.maxEnergyPerQuest) {
-                availableQuests.sort((a, b) => a.energy_cost - b.energy_cost);
+            // If there's no quest meeting the criteria filters, sort all quests by min energy
+            if (availableQuests.length <= 0) {
+                this.currentQuests.sort((a, b) => a.energy_cost - b.energy_cost);
             }
 
             return availableQuests[0] || null;
@@ -340,6 +370,24 @@
             this.currentMissionFocus = event.target.value;
             GM_setValue('mission-focus', this.currentMissionFocus);
             this.updateUIWithBestQuest(this.getBestQuest());
+        }
+
+        /**
+         * Event handler for changing the auto-redeem voucher later setting.
+         * @param {Event} event
+         */
+        updateAutoRedeemVoucherLater(event) {
+            this.autoRedeemVoucherLater = event.target.value;
+            GM_setValue("auto-redeem-voucher-later", this.autoRedeemVoucherLater);
+        }
+
+        /**
+         * Event handler for changing the auto dismiss level-up setting.
+         * @param {Event} event
+         */
+        updateAutoDismissLevelUp(event) {
+            this.autoDismissLevelUp = event.target.value;
+            GM_setValue("auto-dismiss-level-up", this.autoDismissLevelUp);
         }
 
         /**
@@ -481,28 +529,36 @@
         onWindowLoad() {
             this.setFPS();
 
-            // Quest Sense Loop
+            // General Loop
             setInterval(() => {
-                if (!document.Missioner.quest || !document.Missioner.quest._btnSenseBooster)
-                    return;
 
-                if (document.Missioner.quest._btnSenseBooster.get_visible() === this.questSenseBoosterActive) {
-                    document.Missioner.quest._btnSenseBooster.set_visible(!this.questSenseBoosterActive);
-                    document.Missioner.quest._btnMostXPQuest.set_visible(this.questSenseBoosterActive);
-                    document.Missioner.quest._btnMostGameCurrencyQuest.set_visible(this.questSenseBoosterActive);
+                // Quest sense booster
+                if (document.Missioner.quest && document.Missioner.quest._btnSenseBooster)
+                    if (document.Missioner.quest._btnSenseBooster.get_visible() === this.questSenseBoosterActive) {
+                        document.Missioner.quest._btnSenseBooster.set_visible(!this.questSenseBoosterActive);
+                        document.Missioner.quest._btnMostXPQuest.set_visible(this.questSenseBoosterActive);
+                        document.Missioner.quest._btnMostGameCurrencyQuest.set_visible(this.questSenseBoosterActive);
+                    }
+
+                // Train sense booster
+                if (document.Missioner.train && document.Missioner.train._btnTrainingSenseBooster)
+                    if (document.Missioner.train._btnTrainingSenseBooster.get_visible() === this.trainSenseBoosterActive) {
+                        document.Missioner.train._btnTrainingSenseBooster.set_visible(!this.trainSenseBoosterActive);
+                        document.Missioner.train._btnMostGameCurrencyTrainingQuest.set_visible(this.trainSenseBoosterActive);
+                        document.Missioner.train._btnMostTrainingProgressTrainingQuest.set_visible(this.trainSenseBoosterActive);
+                        document.Missioner.train._btnMostXPTrainingQuest.set_visible(this.trainSenseBoosterActive);
+                    }
+
+                // Auto-redeem Voucher Later
+                if (this.autoRedeemVoucherLater && document.Missioner.new_voucher && document.Missioner.new_voucher._btnClose) {
+                    document.Missioner.new_voucher.onClickClose();
+                    document.Missioner.new_voucher = null;
                 }
-            }, 200);
 
-            // Train Sense Loop
-            setInterval(() => {
-                if (!document.Missioner.train || !document.Missioner.train._btnTrainingSenseBooster)
-                    return;
-
-                if (document.Missioner.train._btnTrainingSenseBooster.get_visible() === this.trainSenseBoosterActive) {
-                    document.Missioner.train._btnTrainingSenseBooster.set_visible(!this.trainSenseBoosterActive);
-                    document.Missioner.train._btnMostGameCurrencyTrainingQuest.set_visible(this.trainSenseBoosterActive);
-                    document.Missioner.train._btnMostTrainingProgressTrainingQuest.set_visible(this.trainSenseBoosterActive);
-                    document.Missioner.train._btnMostXPTrainingQuest.set_visible(this.trainSenseBoosterActive);
+                // Level-up dismiss
+                if (this.autoDismissLevelUp && document.Missioner.level_up && document.Missioner.level_up._btnClose) {
+                    document.Missioner.level_up.close();
+                    document.Missioner.level_up = null;
                 }
             }, 200);
 
@@ -522,6 +578,7 @@
                     this.executeBestMission();
                 }, 1000);
             }, 2000);
+
         }
 
         /**
@@ -552,6 +609,8 @@
                     script = script.replace('this._btnVideoAdvertisment=this._btnUseResource=this._btnSlotMachine', 'document.Missioner.stage=this;this._btnVideoAdvertisment=this._btnUseResource=this._btnSlotMachine');
                     script = script.replace('{this._leftSideButtons=null;', '{document.Missioner.quest=this;this._leftSideButtons=null;');
                     script = script.replace('this._onLoadedCharacter=this', 'document.Missioner.view_manager=this;this._onLoadedCharacter=this');
+                    script = script.replace('this._voucher=a', 'document.Missioner.new_voucher=this;this._voucher=a');
+                    script = script.replace('.txtLevelNumber.set_fontName("FontHeadline");', '.txtLevelNumber.set_fontName("FontHeadline");document.Missioner.level_up=this;');
                     script = script.replace('this._btnCurrentDungeonQuest=this._btnBack', 'document.Missioner.dungeon=this;this._btnCurrentDungeonQuest=this._btnBack');
                     eval("window.lime_script = " + script);
                     lime.$scripts["HeroZero.min"] = window.lime_script;
