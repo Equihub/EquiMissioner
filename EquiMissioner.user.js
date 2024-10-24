@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.5
+// @version      1.5.1
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -377,7 +377,7 @@
          * @param {Event} event
          */
         updateAutoRedeemVoucherLater(event) {
-            this.autoRedeemVoucherLater = event.target.value;
+            this.autoRedeemVoucherLater = event.target.checked;
             GM_setValue("auto-redeem-voucher-later", this.autoRedeemVoucherLater);
         }
 
@@ -386,7 +386,7 @@
          * @param {Event} event
          */
         updateAutoDismissLevelUp(event) {
-            this.autoDismissLevelUp = event.target.value;
+            this.autoDismissLevelUp = event.target.checked;
             GM_setValue("auto-dismiss-level-up", this.autoDismissLevelUp);
         }
 
@@ -498,11 +498,11 @@
                         if (this.autoStartQuest && document.Missioner.dialog_quest) {
                             document.Missioner.dialog_quest.onClickStartQuest();
                         }
-                    }, 200);
+                    }, 300);
                 } else {
                     console.error("Failed to find quest");
                 }
-            }, 300);
+            }, 400);
         }
 
         /**
@@ -552,15 +552,13 @@
                 // Auto-redeem Voucher Later
                 if (this.autoRedeemVoucherLater && document.Missioner.new_voucher && document.Missioner.new_voucher._btnClose) {
                     document.Missioner.new_voucher.onClickClose();
-                    document.Missioner.new_voucher = null;
                 }
 
                 // Level-up dismiss
                 if (this.autoDismissLevelUp && document.Missioner.level_up && document.Missioner.level_up._btnClose) {
-                    document.Missioner.level_up.close();
-                    document.Missioner.level_up = null;
+                    document.Missioner.level_up.onClickClose();
                 }
-            }, 200);
+            }, 300);
 
             // Auto-claim Quest Loop
             setInterval(() => {
@@ -576,8 +574,8 @@
                     if (document.Missioner.quest_complete._btnClose)
                         return;
                     this.executeBestMission();
-                }, 1000);
-            }, 2000);
+                }, 500);
+            }, 1000);
 
         }
 
