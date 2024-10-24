@@ -10,6 +10,14 @@ The best open-source HeroZero utility userscript.
 
 <small>(A userscript engine, like Tampermonkey, is required.)</small>
 
+---
+
+### **Disclaimer**
+
+Please note that using this userscript is against the game's Terms of Service (ToS) and may result in your account being banned. While the likelihood of a ban is very low, you assume all responsibility for using the script.
+
+---
+
 ## Installation
 
 1. Install [Tampermonkey](https://tampermonkey.net/)
