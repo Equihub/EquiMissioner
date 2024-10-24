@@ -18,22 +18,30 @@ The best open-source HeroZero utility userscript.
 
 ## Features
 
+- **Auto Redeem-Later for Vouchers:**
+  - Automatically redeem rewards from vouchers later without manual input.
+
+- **Auto Dismiss Level-Up Popup:**
+  - Automatically dismiss level-up popups to keep you focused on playing.
+
 - **Quest Management:**
   - Automatically start quests upon hitting "Go."
   - Auto-claim quest rewards.
-  - Start the next quest after claiming rewards.
-  - Set a quest focus to optimize your quests.
-  
+  - Set a quest focus to optimize progression.
+  - Start the next quest immediately after claiming rewards.
+
 - **Max Energy Setting:**
   - Control and set the maximum amount of energy for each mission.
-  
+
+- **Energy Purchase Button:**
+  - Purchase energy even when you have more than 50 energy, adding flexibility to your gameplay.
+
 - **FPS Unlocker:**
-  - Adjust FPS to enhance game performance. Slider to set the current FPS (default at 30 up to 160).
-  
+  - Adjust FPS (frames per second) for optimal game performance with a slider ranging from 30 to 160 FPS.
+
 - **Exploits:**
-  - Activate the "Quest Sense Booster" for a free quest sense booster.
-  - Activate the "Train Sense Booster" for the train sense booster buttons, no added benefits.
-  - "Buy Energy" without requiring less than 50 energy to do so.
+  - Activate the "Quest Sense Booster" for free quest sense boosting.
+  - Access the "Train Sense Booster" for training ease.
 
 ## Contributing
 
@@ -47,7 +55,7 @@ We welcome contributions from the community! If you're interested in improving E
      ```bash
      git clone https://github.com/your-username/EquiMissioner.git
      ```
-     
+
 3. **Create a Branch:**
    - Create a new branch for your feature or bug fix:
      ```bash
