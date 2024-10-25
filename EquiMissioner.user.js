@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.5.1
+// @version      1.6
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -272,9 +272,14 @@
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr._method === "POST" && xhr._url.includes("request.php")) {
                         const jsonResponse = JSON.parse(xhr.responseText)
 
-                        if (Array.isArray(jsonResponse?.data?.quests)) {
+                        if (Array.isArray(jsonResponse?.data?.quests))
                             self.handleQuestChange(jsonResponse.data.quests);
-                        }
+
+                        if (data.includes("action=checkForQuestComplete"))
+                            self.handleCheckForQuestComplete();
+
+                        if (data.includes("action=claimQuestRewards"))
+                            self.handleClaimQuestRewards();
                     }
                     let reportingError = data && data.includes("gameReportError");
                     if (!reportingError && originalOnReadyStateChange) {
@@ -286,6 +291,31 @@
 
                 return originalSend.apply(this, arguments);
             };
+        }
+
+        /**
+         * Handles check for claim quest rewards.
+         */
+        handleClaimQuestRewards() {
+            if (!this.autoNextQuest || !document.Missioner.quest_complete)
+                return;
+
+            setTimeout(() => {
+                this.executeBestMission();
+            }, 500);
+        }
+
+        /**
+         * Handles check for quest complete events.
+         */
+        handleCheckForQuestComplete() {
+            // Auto-claim Quest
+            setTimeout(() => {
+                if (!this.autoClaimQuest || !document.Missioner.quest_complete || !document.Missioner.quest_complete._btnClose)
+                    return;
+
+                document.Missioner.quest_complete.onClickClose();
+            }, 500);
         }
 
         /**
@@ -478,6 +508,9 @@
          * Executes the best quest based on the current settings.
          */
         executeBestMission() {
+            if (!document.Missioner.stage)
+                return;
+
             const bestQuest = this.getBestQuest();
             if (!bestQuest) return;
 
@@ -557,26 +590,9 @@
                 // Level-up dismiss
                 if (this.autoDismissLevelUp && document.Missioner.level_up && document.Missioner.level_up._btnClose) {
                     document.Missioner.level_up.onClickClose();
+                    document.Missioner.level_up.dispose();
                 }
             }, 300);
-
-            // Auto-claim Quest Loop
-            setInterval(() => {
-                if (!this.autoClaimQuest || !document.Missioner.quest_complete || !document.Missioner.quest_complete._btnClose)
-                    return;
-
-                document.Missioner.quest_complete.onClickClose();
-
-                if (!this.autoNextQuest)
-                    return;
-
-                setTimeout(() => {
-                    if (document.Missioner.quest_complete._btnClose)
-                        return;
-                    this.executeBestMission();
-                }, 500);
-            }, 1000);
-
         }
 
         /**
