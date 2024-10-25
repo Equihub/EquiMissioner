@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.6
+// @version      1.7
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -71,6 +71,7 @@
             this.autoNextQuest = GM_getValue("quest-auto-next", false);
             this.autoRedeemVoucherLater = GM_getValue("auto-redeem-voucher-later", false);
             this.autoDismissLevelUp = GM_getValue("auto-dismiss-level-up", false);
+            this.autoDismissPetLevelUp = GM_getValue("auto-dismiss-pet-level-up", false);
             this.questSenseBoosterActive = GM_getValue("sense-booster", false);
             this.trainSenseBoosterActive = GM_getValue("train-sense-booster", false);
 
@@ -188,6 +189,10 @@
                                             <input type="checkbox" class="form-check-input" id="auto-dismiss-level-up">
                                             <label class="form-check-label" for="auto-dismiss-level-up">Auto Dismiss Popup</label>
                                         </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="auto-dismiss-pet-level-up">
+                                            <label class="form-check-label" for="auto-dismiss-pet-level-up">Auto Dismiss Pet Popup</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-center mb-2">
@@ -220,6 +225,7 @@
             const questAutoNextCheckbox = document.getElementById('quest-auto-next');
             const voucherAutoRedeemLaterCheckbox = document.getElementById('auto-redeem-voucher-later');
             const autoDismissLevelUpCheckbox = document.getElementById('auto-dismiss-level-up');
+            const autoDismissPetLevelUpCheckbox = document.getElementById('auto-dismiss-pet-level-up');
             const fpsInput = document.getElementById('fps-input');
             const missionGoButton = document.getElementById('mission-go');
             const buyEnergyButton = document.getElementById('buy-energy');
@@ -234,6 +240,7 @@
             questAutoNextCheckbox.checked = this.autoNextQuest;
             voucherAutoRedeemLaterCheckbox.checked = this.autoRedeemVoucherLater;
             autoDismissLevelUpCheckbox.checked = this.autoDismissLevelUp;
+            autoDismissPetLevelUpCheckbox.checked = this.autoDismissPetLevelUp;
 
             // Set up event listeners
             fpsInput.addEventListener('input', this.updateFPS.bind(this));
@@ -248,6 +255,7 @@
             questAutoNextCheckbox.addEventListener('change', this.updateAutoNextQuest.bind(this));
             voucherAutoRedeemLaterCheckbox.addEventListener('change', this.updateAutoRedeemVoucherLater.bind(this));
             autoDismissLevelUpCheckbox.addEventListener('change', this.updateAutoDismissLevelUp.bind(this));
+            autoDismissPetLevelUpCheckbox.addEventListener('change', this.updateAutoDismissPetLevelUp.bind(this));
         }
 
         /**
@@ -409,6 +417,15 @@
         updateAutoRedeemVoucherLater(event) {
             this.autoRedeemVoucherLater = event.target.checked;
             GM_setValue("auto-redeem-voucher-later", this.autoRedeemVoucherLater);
+        }
+
+        /**
+         * Event handler for changing the auto dismiss pet level-up setting.
+         * @param {Event} event
+         */
+        updateAutoDismissPetLevelUp(event) {
+            this.autoDismissPetLevelUp = event.target.checked;
+            GM_setValue("auto-dismiss-pet-level-up", this.autoDismissPetLevelUp);
         }
 
         /**
@@ -592,6 +609,12 @@
                     document.Missioner.level_up.onClickClose();
                     document.Missioner.level_up.dispose();
                 }
+
+                // Pet Level-up dismiss
+                if (this.autoDismissPetLevelUp && document.Missioner.pet_level_up && document.Missioner.pet_level_up._btnClose) {
+                    document.Missioner.pet_level_up.onClickClose();
+                    document.Missioner.pet_level_up.dispose();
+                }
             }, 300);
         }
 
@@ -625,6 +648,7 @@
                     script = script.replace('this._onLoadedCharacter=this', 'document.Missioner.view_manager=this;this._onLoadedCharacter=this');
                     script = script.replace('this._voucher=a', 'document.Missioner.new_voucher=this;this._voucher=a');
                     script = script.replace('.txtLevelNumber.set_fontName("FontHeadline");', '.txtLevelNumber.set_fontName("FontHeadline");document.Missioner.level_up=this;');
+                    script = script.replace('this._btnClose=this._sidekick=null;', 'this._btnClose=this._sidekick=null;document.Missioner.pet_level_up=this;');
                     script = script.replace('this._btnCurrentDungeonQuest=this._btnBack', 'document.Missioner.dungeon=this;this._btnCurrentDungeonQuest=this._btnBack');
                     eval("window.lime_script = " + script);
                     lime.$scripts["HeroZero.min"] = window.lime_script;
