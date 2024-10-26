@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.1
+// @version      1.7.2
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -612,9 +612,9 @@
 
                 // Level-up dismiss
                 if (this.autoDismissLevelUp && document.Missioner.level_up && document.Missioner.level_up._btnClose) {
-                    document.Missioner.level_up.onClickClose();
                     setTimeout(() => {
                         try {
+                            document.Missioner.level_up.onClickClose();
                             document.Missioner.level_up.dispose();
                         } catch (e) {
                         }
@@ -624,10 +624,9 @@
 
                 // Pet Level-up dismiss
                 if (this.autoDismissPetLevelUp && document.Missioner.pet_level_up && document.Missioner.pet_level_up._btnClose) {
-                    document.Missioner.pet_level_up.onClickClose();
-
                     setTimeout(() => {
                         try {
+                            document.Missioner.pet_level_up.onClickClose();
                             document.Missioner.pet_level_up.dispose();
                         } catch (e) {
                         }
