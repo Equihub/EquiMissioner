@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7
+// @version      1.7.1
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -88,6 +88,7 @@
             // Event listeners
             document.addEventListener("DOMContentLoaded", this.onDOMContentLoaded.bind(this));
             window.addEventListener("load", this.onWindowLoad.bind(this));
+
         }
 
         /**
@@ -262,6 +263,8 @@
          * Sets up a proxy for XMLHttpRequest to intercept and handle quest data.
          */
         setupRequestProxy() {
+
+
             const self = this;
             const originalOpen = XMLHttpRequest.prototype.open;
             const originalSend = XMLHttpRequest.prototype.send;
@@ -278,6 +281,9 @@
 
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === XMLHttpRequest.DONE && xhr._method === "POST" && xhr._url.includes("request.php")) {
+                        unsafeWindow.onerror = () => {
+                            console.error("[Missioner] Game Error Prevented")
+                        }; // Quick error fix
                         const jsonResponse = JSON.parse(xhr.responseText)
 
                         if (Array.isArray(jsonResponse?.data?.quests))
@@ -310,7 +316,7 @@
 
             setTimeout(() => {
                 this.executeBestMission();
-            }, 500);
+            }, 600);
         }
 
         /**
@@ -323,7 +329,7 @@
                     return;
 
                 document.Missioner.quest_complete.onClickClose();
-            }, 500);
+            }, 1000);
         }
 
         /**
@@ -607,15 +613,29 @@
                 // Level-up dismiss
                 if (this.autoDismissLevelUp && document.Missioner.level_up && document.Missioner.level_up._btnClose) {
                     document.Missioner.level_up.onClickClose();
-                    document.Missioner.level_up.dispose();
+                    setTimeout(() => {
+                        try {
+                            document.Missioner.level_up.dispose();
+                        } catch (e) {
+                        }
+
+                    }, 300);
                 }
 
                 // Pet Level-up dismiss
                 if (this.autoDismissPetLevelUp && document.Missioner.pet_level_up && document.Missioner.pet_level_up._btnClose) {
                     document.Missioner.pet_level_up.onClickClose();
-                    document.Missioner.pet_level_up.dispose();
+
+                    setTimeout(() => {
+                        try {
+                            document.Missioner.pet_level_up.dispose();
+                        } catch (e) {
+                        }
+
+                    }, 300);
                 }
-            }, 300);
+
+            }, 500);
         }
 
         /**
