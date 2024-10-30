@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.2
+// @version      1.7.4
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -294,6 +294,9 @@
 
                         if (data.includes("action=claimQuestRewards"))
                             self.handleClaimQuestRewards();
+
+                        if (data.includes("action=setCharacterStage") && self.autoNextQuest)
+                            self.startNewMission(self.getBestQuest());
                     }
                     let reportingError = data && data.includes("gameReportError");
                     if (!reportingError && originalOnReadyStateChange) {
@@ -337,7 +340,29 @@
          * @param {Array} quests - The array of quest data.
          */
         handleQuestChange(quests) {
-            this.currentQuests = quests.map(quest => ({...quest, rewards: JSON.parse(quest.rewards)}));
+            this.currentQuests = quests.map(quest => ({
+                ...quest,
+                rewards: JSON.parse(quest.rewards),
+            }));
+
+            // We'll go through quests 3 by 3 and set any that doesn't have a stage to be the same as the others in the same group
+            const CHUNK_SIZE = 3;
+            for (let i = 0; i < this.currentQuests.length; i += CHUNK_SIZE) {
+                const chunk = this.currentQuests.slice(i, i + CHUNK_SIZE);
+
+                const renewableQuest = chunk.find(quest => quest.stage === 0);
+                const sameStageQuest = chunk.find(quest => quest.stage !== 0);
+
+                if (renewableQuest && sameStageQuest) {
+                    let questToUpdate = -1;
+                    do {
+                        questToUpdate = this.currentQuests.findIndex(quest => quest.stage === 0);
+                        if (questToUpdate !== -1)
+                            this.currentQuests[questToUpdate].stage = sameStageQuest.stage;
+                    } while (questToUpdate !== -1)
+                }
+            }
+
             this.updateUIWithBestQuest(this.getBestQuest());
         }
 
@@ -528,17 +553,9 @@
         }
 
         /**
-         * Executes the best quest based on the current settings.
+         * Handles the logic to start a new mission when in the right stage
          */
-        executeBestMission() {
-            if (!document.Missioner.stage)
-                return;
-
-            const bestQuest = this.getBestQuest();
-            if (!bestQuest) return;
-
-            document.Missioner.stage.setStage(bestQuest.stage);
-
+        startNewMission(bestQuest) {
             setTimeout(() => {
                 const questButtons = [
                     document.Missioner.quest._btnQuest1,
@@ -558,7 +575,24 @@
                 } else {
                     console.error("Failed to find quest");
                 }
-            }, 400);
+            }, 500);
+        }
+
+        /**
+         * Executes the best quest based on the current settings.
+         */
+        executeBestMission() {
+            if (!document.Missioner.stage)
+                return;
+
+            const bestQuest = this.getBestQuest();
+            if (!bestQuest) return;
+
+            if (document.Missioner.view_manager.get_user().get_character().get_currentQuestStage() !== bestQuest.stage)
+                document.Missioner.stage.setStage(bestQuest.stage);
+            else {
+                this.startNewMission(bestQuest);
+            }
         }
 
         /**
