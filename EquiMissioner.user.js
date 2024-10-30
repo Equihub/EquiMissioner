@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.5
+// @version      1.7.6
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -111,7 +111,7 @@
             mainDiv.innerHTML = `
                 <div style="z-index: 1050">
                     <button class="btn btn-secondary position-absolute d-flex align-items-center" style="z-index: 1050;" type="button" data-bs-toggle="collapse" data-bs-target="#missioner-cont" aria-expanded="false" aria-controls="missioner-cont">
-                        <img src="https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true" alt="M" style="width: 32px;">
+                        <img class="rounded-circle" src="https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true" alt="M" style="width: 32px;">
                         <p class="mx-2 my-0">EquiMissioner</p>
                     </button>
                     <div class="position-absolute top-0" style="height: 100vh;background: #262626cc;overflow-y: auto">
@@ -203,7 +203,7 @@
                                     </a>
                                 </div>
                                 <div class="d-flex justify-content-center mb-2">
-                                    <p>Made with ♥ by LilyPrism</p>
+                                    <p class="text-center">Made with ♥ by LilyPrism <br />v${GM_info.script.version}</p>
                                 </div>
                             </div>
                         </div>
@@ -721,6 +721,10 @@
             const fixScript = document.createElement("script");
             fixScript.textContent = fixedEmbedCode;
             document.head.appendChild(fixScript);
+
+            // const antiPause = document.createElement("script");
+            // antiPause.src = "https://cdn.jsdelivr.net/npm/hacktimer@1.1.3/HackTimer.min.js"
+            // document.head.appendChild(antiPause);
         }
     }
 
