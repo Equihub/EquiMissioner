@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.4
+// @version      1.7.5
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -41,6 +41,7 @@
      * Mapping of quest stages to their names.
      */
     const QUEST_STAGES = Object.freeze({
+        '0': "Renewable Quest",
         '1': "At Home in Humphreydale",
         '2': "Dirty Downtown",
         '3': "Center of Granbury",
@@ -345,24 +346,6 @@
                 rewards: JSON.parse(quest.rewards),
             }));
 
-            // We'll go through quests 3 by 3 and set any that doesn't have a stage to be the same as the others in the same group
-            const CHUNK_SIZE = 3;
-            for (let i = 0; i < this.currentQuests.length; i += CHUNK_SIZE) {
-                const chunk = this.currentQuests.slice(i, i + CHUNK_SIZE);
-
-                const renewableQuest = chunk.find(quest => quest.stage === 0);
-                const sameStageQuest = chunk.find(quest => quest.stage !== 0);
-
-                if (renewableQuest && sameStageQuest) {
-                    let questToUpdate = -1;
-                    do {
-                        questToUpdate = this.currentQuests.findIndex(quest => quest.stage === 0);
-                        if (questToUpdate !== -1)
-                            this.currentQuests[questToUpdate].stage = sameStageQuest.stage;
-                    } while (questToUpdate !== -1)
-                }
-            }
-
             this.updateUIWithBestQuest(this.getBestQuest());
         }
 
@@ -372,6 +355,7 @@
          */
         updateUIWithBestQuest(quest) {
             if (!quest) return;
+
             document.getElementById("m-city").textContent = QUEST_STAGES[quest.stage];
             document.getElementById("m-xp").textContent = numeral(quest.rewards.xp || 0).format('0,0');
             document.getElementById("m-coins").textContent = numeral(quest.rewards.coins || 0).format('0,0');
@@ -582,15 +566,36 @@
          * Executes the best quest based on the current settings.
          */
         executeBestMission() {
-            if (!document.Missioner.stage)
+            // Check if Missioner stage exists before proceeding
+            if (!document.Missioner.stage) {
                 return;
+            }
 
+            // Get the best available quest
             const bestQuest = this.getBestQuest();
-            if (!bestQuest) return;
+            if (!bestQuest) {
+                return;
+            }
 
-            if (document.Missioner.view_manager.get_user().get_character().get_currentQuestStage() !== bestQuest.stage)
-                document.Missioner.stage.setStage(bestQuest.stage);
-            else {
+            // Retrieve quest stage by quest ID
+            const questStage = document.Missioner.view_manager
+                .get_user()
+                .get_character()
+                .getQuestStageByQuestId(bestQuest.id);
+
+            const character = document.Missioner.view_manager.get_user().get_character();
+            const currentQuestStage = character.get_currentQuestStage();
+            const isQuestPanelActive = document.Missioner.view_manager._activePanel === 'quests';
+
+            // Check if current quest stage matches and active panel is 'quests'
+            if (currentQuestStage !== questStage || !isQuestPanelActive) {
+                if (!isQuestPanelActive) {
+                    document.Missioner.stage.setStage(questStage);
+                    this.startNewMission(bestQuest);
+                } else {
+                    document.Missioner.stage.setStage(questStage);
+                }
+            } else {
                 this.startNewMission(bestQuest);
             }
         }
