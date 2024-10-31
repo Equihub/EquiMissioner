@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.6
+// @version      1.7.7
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -721,10 +721,6 @@
             const fixScript = document.createElement("script");
             fixScript.textContent = fixedEmbedCode;
             document.head.appendChild(fixScript);
-
-            // const antiPause = document.createElement("script");
-            // antiPause.src = "https://cdn.jsdelivr.net/npm/hacktimer@1.1.3/HackTimer.min.js"
-            // document.head.appendChild(antiPause);
         }
     }
 
