@@ -1,4 +1,4 @@
-<img src="https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true" alt="EquiMissioner Logo" width="256px">
+<img src="https://github.com/Equihub/EquiMissioner/blob/main/Equimissioner-small.png?raw=true" alt="EquiMissioner Logo" width="256px">
 
 # EquiMissioner
 The best open-source HeroZero utility userscript.
