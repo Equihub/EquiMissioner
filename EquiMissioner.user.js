@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.7
+// @version      1.7.8
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
 // @match        https://*.herozerogame.com
 // @downloadURL  https://github.com/Equihub/EquiMissioner/blob/main/EquiMissioner.user.js?raw=true
 // @updateURL    https://github.com/Equihub/EquiMissioner/blob/main/EquiMissioner.user.js?raw=true
-// @icon         https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true
+// @icon         https://github.com/Equihub/EquiMissioner/blob/main/Equimissioner-small.png?raw=true
 // @require      https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js
 // @resource     BS5_CSS https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css
@@ -111,7 +111,7 @@
             mainDiv.innerHTML = `
                 <div style="z-index: 1050">
                     <button class="btn btn-secondary position-absolute d-flex align-items-center" style="z-index: 1050;" type="button" data-bs-toggle="collapse" data-bs-target="#missioner-cont" aria-expanded="false" aria-controls="missioner-cont">
-                        <img class="rounded-circle" src="https://github.com/Equihub/EquiMissioner/blob/main/equimissioner.jpg?raw=true" alt="M" style="width: 32px;">
+                        <img class="rounded-circle" src="https://github.com/Equihub/EquiMissioner/blob/main/Equimissioner-small.png?raw=true" alt="M" style="width: 32px;">
                         <p class="mx-2 my-0">EquiMissioner</p>
                     </button>
                     <div class="position-absolute top-0" style="height: 100vh;background: #262626cc;overflow-y: auto">
