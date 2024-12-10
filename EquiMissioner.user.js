@@ -88,7 +88,6 @@
 
             // Event listeners
             document.addEventListener("DOMContentLoaded", this.onDOMContentLoaded.bind(this));
-            window.addEventListener("load", this.onWindowLoad.bind(this));
 
         }
 
@@ -340,6 +339,7 @@
         handleInitGame() {
             this.createUI();
             this.setFPS();
+            this.generalLoop();
         }
 
         /**
@@ -652,7 +652,7 @@
         /**
          * Handler for the window load event.
          */
-        onWindowLoad() {
+        generalLoop() {
             // General Loop
             setInterval(() => {
 
