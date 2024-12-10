@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EquiMissioner
 // @namespace    https://github.com/Equihub/EquiMissioner
-// @version      1.7.8
+// @version      1.8.0
 // @description  Best OpenSource Hero Zero Utility Userscript
 // @author       LilyPrism @ Equihub
 // @license      AGPL3.0
@@ -65,7 +65,7 @@
         constructor() {
             this.currentQuests = [];
             this.currentMissionFocus = GM_getValue("mission-focus", MISSION_FOCUS.XP);
-            this.currentFPS = GM_getValue("fps", 30);
+            this.currentFPS = GM_getValue("fps", 60);
             this.maxEnergyPerQuest = GM_getValue("max-energy-quest", 20);
             this.autoStartQuest = GM_getValue("auto-start-quest", false);
             this.autoClaimQuest = GM_getValue("quest-auto-claim", false);
@@ -100,13 +100,33 @@
             GM_addStyle(bs5Css);
         }
 
+
+        /**
+         * Creates and inserts a random element into the document.
+         */
+        createRandomElement() {
+            // List of possible HTML elements
+            const elements = ['div', 'span', 'p', 'section', 'article'];
+
+            // Generate random element
+            const randomElement = elements[Math.floor(Math.random() * elements.length)];
+
+            // Generate random ID (6 characters, alphanumeric)
+            const randomId = Math.random().toString(36).substring(2, 8);
+
+            // Create the element
+            const element = document.createElement(randomElement);
+            element.id = randomId;
+
+            return element;
+        }
+
         /**
          * Creates and inserts the user interface elements into the document.
          */
         createUI() {
             // Create the main container div
-            const mainDiv = document.createElement('div');
-            mainDiv.id = "missioner";
+            const mainDiv = this.createRandomElement();
             mainDiv.className = "fixed-top";
             mainDiv.innerHTML = `
                 <div style="z-index: 1050">
@@ -290,6 +310,9 @@
                         if (Array.isArray(jsonResponse?.data?.quests))
                             self.handleQuestChange(jsonResponse.data.quests);
 
+                        if (data.includes("action=initGame"))
+                            self.handleInitGame();
+
                         if (data.includes("action=checkForQuestComplete"))
                             self.handleCheckForQuestComplete();
 
@@ -309,6 +332,14 @@
 
                 return originalSend.apply(this, arguments);
             };
+        }
+
+        /**
+         * Handles game initialization action
+         */
+        handleInitGame() {
+            this.createUI();
+            this.setFPS();
         }
 
         /**
@@ -579,9 +610,9 @@
 
             // Retrieve quest stage by quest ID
             const questStage = document.Missioner.view_manager
-                .get_user()
-                .get_character()
-                .getQuestStageByQuestId(bestQuest.id);
+            .get_user()
+            .get_character()
+            .getQuestStageByQuestId(bestQuest.id);
 
             const character = document.Missioner.view_manager.get_user().get_character();
             const currentQuestStage = character.get_currentQuestStage();
@@ -614,7 +645,7 @@
             this.injectFixedEmbedCode();
 
             // Create the UI
-            this.createUI();
+            // this.createUI();
             console.log("[Missioner] Setup complete!");
         }
 
@@ -622,8 +653,6 @@
          * Handler for the window load event.
          */
         onWindowLoad() {
-            this.setFPS();
-
             // General Loop
             setInterval(() => {
 
